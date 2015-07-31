@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry including="**/*.java" kind="src" output="target/test-classes" path="src/test/java"/>
+	<classpathentry excluding="**/*.java" kind="src" output="target/test-classes" path="src/test/resources"/>
+	<classpathentry including="**/*.java" kind="src" path="src/main/java"/>
+	<classpathentry kind="var" path="M2_REPO/javax/xml/stream/stax-api/1.0-2/stax-api-1.0-2.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="var" path="M2_REPO/org/codehaus/sonar/sonar-plugin-api/5.1/sonar-plugin-api-5.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/com/google/code/findbugs/jsr305/2.0.3/jsr305-2.0.3.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/codehaus/sonar/sonar-check-api/5.1/sonar-check-api-5.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/codehaus/sonar/sonar-colorizer/5.1/sonar-colorizer-5.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/com/google/guava/guava/10.0.1/guava-10.0.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/codehaus/sonar/sonar-channel/4.1/sonar-channel-4.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-io/commons-io/2.4/commons-io-2.4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/codehaus/sonar/sonar-duplications/5.1/sonar-duplications-5.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-lang/commons-lang/2.6/commons-lang-2.6.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/codehaus/sonar/sonar-graph/5.1/sonar-graph-5.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/codehaus/sonar/sonar-squid/4.1/sonar-squid-4.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/picocontainer/picocontainer/2.14.3/picocontainer-2.14.3.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-codec/commons-codec/1.8/commons-codec-1.8.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/codehaus/woodstox/woodstox-core-lgpl/4.4.0/woodstox-core-lgpl-4.4.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/codehaus/woodstox/stax2-api/3.1.4/stax2-api-3.1.4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/codehaus/staxmate/staxmate/2.0.1/staxmate-2.0.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/codehaus/sonar/sonar-testing-harness/5.1/sonar-testing-harness-5.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/assertj/assertj-core/1.7.1/assertj-core-1.7.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/skyscreamer/jsonassert/1.2.3/jsonassert-1.2.3.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/json/json/20090211/json-20090211.jar"/>
+	<classpathentry kind="var" path="M2_REPO/junit/junit/4.12/junit-4.12.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/hamcrest/hamcrest-all/1.3/hamcrest-all-1.3.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/mockito/mockito-core/1.9.5/mockito-core-1.9.5.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/objenesis/objenesis/1.0/objenesis-1.0.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Borland/StarTeam SDK 13.0/Lib/starteam130.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Borland/StarTeam SDK 13.0/Lib/starteam130-resources.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>
