@@ -99,21 +99,24 @@ public class StarteamConnection {
 	}
 
 	private ServerInfo createServerInfo() {
+		LOG.info("Create Server info.");
 		ServerInfo serverInfo = new ServerInfo();
 		serverInfo
 				.setConnectionType(ServerConfiguration.PROTOCOL_TCP_IP_SOCKETS);
 		serverInfo.setHost(this.hostName);
 		serverInfo.setPort(this.port);
-
+		LOG.info("populate description.");
 		populateDescription(serverInfo);
-
+		LOG.info("Created Server info.");
 		return serverInfo;
 	}
 
 	public void initialize() throws StarteamSCMException {
+		LOG.info("Create Server.");
 		server = new Server(createServerInfo());
+		LOG.info("Connecting Server.");
 		server.connect();
-		LOG.info("Connect to Server.");
+		LOG.info("Connected to Server.");
 		server.logOn(userName, password);
 		LOG.info("log On to Server with User:" + userName + ".");
 

@@ -64,6 +64,8 @@ public class StarteamBlameCommand extends BlameCommand {
 			LOG.error("Fail to init star team connection.",e);
 		} catch (IOException e) {
 			LOG.error("IOException",e);
+		}catch(Exception e){
+			LOG.error("IOException",e);			
 		}finally{
 			conn.close();
 		}
