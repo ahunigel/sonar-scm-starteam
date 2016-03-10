@@ -42,17 +42,18 @@ public class StarteamConnectionTest {
 //		}
 //	}
 
-//	@Test
+	@Test
 	public void testBlame(){
 		
-		StarteamConnection conn=new StarteamConnection("starteamserver.ers.na.emersonclimate.org", 49201, "automated_build","auto", "JARU", "JARU","d:/blame");
+		StarteamConnection conn=new StarteamConnection("starteamserver.ers.na.emersonclimate.org", 49201, "sonar_hudson_tool","13m3rson", "JARU", ".Ref Track 16.x from Merged-JARU 15.1.0B19 - db schema 82","d:/blame");
 		try {
 			conn.initialize();
 			File file;
 			File baseFolder=new File("Software");
 			file=new File(baseFolder,"Scripts/version.properties");
-			Folder folder=conn.findFolder("JARU/Software/JaruPlugins/G4/Source/JavaCode/com/cpcus/jaru/protocol/impl/g4/operation");
-			List<BlameLine> result=(List<BlameLine>) conn.blame(folder, "G4GetApplicationDataOperation.java");
+			//Jaru\Software\Source\JavaCode\com\cpcus\jaru\biz\impl\estimation\estimator\ActivityExecutionEstimator.java
+			Folder folder=conn.findFolder("JARU/Software/JaruPlugins/ProActRMS/Source/JavaCode/com/cpcus/jaru/dataAccess/impl/");
+			List<BlameLine> result=(List<BlameLine>) conn.blame(folder, "RefrigerantTypeDAOImpl.java",101);
 			int i=0;
 			for(BlameLine bl:result){
 				System.out.println((++i)+":"+bl);

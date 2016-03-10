@@ -8,7 +8,7 @@
     <relativePath />
   </parent>
   <artifactId>sonar-scm-starteam-plugin</artifactId>
-  <version>1.0</version>
+  <version>1.1</version>
   <name>SonarQube :: Plugins :: SCM :: STARTEAM</name>
   <packaging>sonar-plugin</packaging>
   <description>STARTEAM SCM Provider.</description>
@@ -47,9 +47,18 @@
   	<dependency>
       <groupId>com.borland</groupId>
       <artifactId>starteam</artifactId>
-      <version>13.0</version>
+      <version>14.0</version>
     </dependency>
-
+    <dependency>
+      <groupId>com.borland</groupId>
+      <artifactId>jsafe</artifactId>
+      <version>14.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.borland</groupId>
+      <artifactId>ss</artifactId>
+      <version>14.0</version>
+    </dependency>
     <!-- unit tests -->
     <dependency>
       <groupId>org.codehaus.sonar</groupId>

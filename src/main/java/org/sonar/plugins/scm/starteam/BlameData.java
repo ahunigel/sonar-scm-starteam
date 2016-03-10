@@ -32,6 +32,7 @@ public class BlameData implements Serializable{
 	 */
 	private static final long serialVersionUID = -7129003666026086885L;
 	private int revision;
+	private long lastModifyDate =-1;
 	private transient List<BlameLine> blameLines;
 	private List<BlameLineSerializable> serializableBlameLines;
 	public int getRevision() {
@@ -40,6 +41,14 @@ public class BlameData implements Serializable{
 	public void setRevision(int revision) {
 		this.revision = revision;
 	}	
+	
+	public long getLastModifyDate() {
+		return lastModifyDate;
+	}
+	
+	public void setLastModifyDate(long lastModifyDate) {
+		this.lastModifyDate = lastModifyDate;
+	}
 	
 	public List<BlameLine> getBlameLines() {
 		if(blameLines==null&&serializableBlameLines!=null){

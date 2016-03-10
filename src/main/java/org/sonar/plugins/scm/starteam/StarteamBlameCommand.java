@@ -92,10 +92,11 @@ public class StarteamBlameCommand extends BlameCommand {
 
 	private void blame(StarteamConnection conn,BlameOutput output, final Folder baseDir,
 			InputFile inputFile) throws IOException {
-		List<BlameLine>lines=conn.blame(baseDir, inputFile.file().getName());
+		List<BlameLine>lines=conn.blame(baseDir, inputFile.file().getName(),inputFile.lines());
 		if (lines.size() == inputFile.lines() - 1) {
 			 lines.add(lines.get(lines.size() - 1));
 		}
+		LOG.info("File:"+inputFile.path().toString()+" "+inputFile.lines()+" lines:"+lines.size());
 		output.blameResult(inputFile, lines);
 	}
 
