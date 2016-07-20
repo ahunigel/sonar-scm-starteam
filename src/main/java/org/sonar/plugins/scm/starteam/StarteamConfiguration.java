@@ -42,6 +42,10 @@ public class StarteamConfiguration implements BatchComponent {
 	private String host;
 
 	private int port;
+	
+	 private String agenthost;
+
+	  private int agentport;
 
     private String project;
     
@@ -61,6 +65,8 @@ public class StarteamConfiguration implements BatchComponent {
 		if (!init) {
 			host = settings.getString("scm.starteam.host");
 			port = settings.getInt("scm.starteam.port");
+			agenthost = settings.getString("scm.starteam.agent.host");
+      agentport = settings.getInt("scm.starteam.agent.port");
 			user = settings.getString("scm.starteam.user");
 			password = settings.getString("scm.starteam.password");
 			project = settings.getString("scm.starteam.project");
@@ -112,6 +118,16 @@ public class StarteamConfiguration implements BatchComponent {
 	public String getProjectBaseFolder() {
 		return projectBaseFolder;
 	}
+
+  public String getAgenthost()
+  {
+    return agenthost;
+  }
+
+  public int getAgentport()
+  {
+    return agentport;
+  }
 	
 	
 

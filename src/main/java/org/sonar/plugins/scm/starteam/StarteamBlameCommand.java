@@ -22,11 +22,9 @@ package org.sonar.plugins.scm.starteam;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.scm.BlameCommand;
-import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -49,6 +47,7 @@ public class StarteamBlameCommand extends BlameCommand {
 		File  projectBaseFolder=new File(configuration.getProjectBaseFolder());
 		LOG.info("blame projectBaseFolder:"+projectBaseFolder.getPath()+" baseDir: " + input.fileSystem().baseDir().getPath()+" working dir:"+input.fileSystem().workDir().getPath());
 		StarteamConnection conn=new StarteamConnection(configuration);
+		conn.setOutput(output);
 		try {
 			conn.initialize();	
 			for (InputFile inputFile : input.filesToBlame()) {
@@ -57,6 +56,7 @@ public class StarteamBlameCommand extends BlameCommand {
 				//baseFolder.setAlt//ernatePathFragment(inputFile.file().getParent());
 				blame(conn,output, baseFolder, inputFile);
 			}
+			conn.startBlame();
 //			ExecutorService executorService = Executors.newFixedThreadPool(1);
 //			List<Future<Void>> tasks = submitTasks(conn,input, output, executorService);
 //			waitForTaskToComplete(executorService, tasks);			
@@ -92,12 +92,7 @@ public class StarteamBlameCommand extends BlameCommand {
 
 	private void blame(StarteamConnection conn,BlameOutput output, final Folder baseDir,
 			InputFile inputFile) throws IOException {
-		List<BlameLine>lines=conn.blame(baseDir, inputFile.file().getName(),inputFile.lines());
-		if (lines.size() == inputFile.lines() - 1) {
-			 lines.add(lines.get(lines.size() - 1));
-		}
-		LOG.info("File:"+inputFile.path().toString()+" "+inputFile.lines()+" lines:"+lines.size());
-		output.blameResult(inputFile, lines);
+		conn.blame(baseDir, inputFile.file().getName(),inputFile.lines(),inputFile);
 	}
 
 	

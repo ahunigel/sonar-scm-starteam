@@ -25,10 +25,14 @@ import java.io.IOException;
 import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.scm.BlameCommand.BlameOutput;
 import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -63,6 +67,8 @@ public class StarteamConnection
 
   private final String hostName;
   private final int port;
+  private final String agenthostName;
+  private final int agentport;
   private final String userName;
   private final String password;
   private final String projectName;
@@ -72,20 +78,20 @@ public class StarteamConnection
 
   private transient Server server;
   private transient View view;
-  private transient Folder rootFolder;
   private transient Project project;
   private transient ServerAdministration srvAdmin;
-
+  private BlameOutput output;
   private boolean canReadUserAccts = true;
-
+  private List<Stack<ViewMember>> coHisStactList= new ArrayList<Stack<ViewMember>>();
+  private Map<Integer,BlameContext>blameContextMap=new HashMap<Integer,BlameContext>();
   private User[] userAccts = null;
-
+  
   private transient CheckoutManager checkoutManager;
 
-  public StarteamConnection(String hostName, int port, String userName, String password, String projectName,
+  public StarteamConnection(String hostName, int port, String agenthostName, int agentport, String userName, String password, String projectName,
       String viewName, String cacheFolder)
   {
-    checkParameters(hostName, port, userName, password, projectName, viewName);
+    checkParameters(hostName, port,agenthostName, agentport, userName, password, projectName, viewName);
     this.hostName = hostName;
     this.port = port;
     this.userName = userName;
@@ -93,14 +99,16 @@ public class StarteamConnection
     this.projectName = projectName;
     this.viewName = viewName;
     this.cacheFolder = cacheFolder;
+    this.agenthostName= agenthostName;
+    this.agentport=agentport;
     // this.folderName = folderName;
   }
 
   public StarteamConnection(StarteamConfiguration configuration)
   {
-    this(configuration.getHostName(), configuration.getPort(), configuration.getUserName(),
-        configuration.getPassword(), configuration.getProject(), configuration.getView(), configuration
-            .getCacheFolder());
+    this(configuration.getHostName(), configuration.getPort(),configuration.getAgenthost(),configuration.getAgentport(),
+        configuration.getUserName(), configuration.getPassword(), configuration.getProject(),
+        configuration.getView(), configuration.getCacheFolder());
   }
 
   private ServerInfo createServerInfo()
@@ -110,6 +118,13 @@ public class StarteamConnection
     serverInfo.setConnectionType(ServerConfiguration.PROTOCOL_TCP_IP_SOCKETS);
     serverInfo.setHost(this.hostName);
     serverInfo.setPort(this.port);
+    if (this.agenthostName != null &&!this.agenthostName.isEmpty())
+    {
+      serverInfo.setMPXCacheAgentAddress(agenthostName);
+      serverInfo.setMPXCacheAgentPort(this.agentport);
+      serverInfo.setMPXCacheAgentThreadCount(2);
+      serverInfo.setEnableCacheAgentForFileContent(true);
+    }
     LOG.info("populate description.");
     populateDescription(serverInfo);
     LOG.info("Created Server info.");
@@ -141,9 +156,10 @@ public class StarteamConnection
     return StarteamFunctions.findFolderInView(view, folderPath);
   }
 
-  public List<BlameLine> blame(Folder folder, String fileName, int expectedLines) throws IOException
+  public void blame(Folder folder, String fileName,int expectedLines, InputFile inputFile) throws IOException
   {
     List<BlameLine> blameLines = null;
+    long startTime=System.currentTimeMillis();
     // get revision from local
     try
     {
@@ -161,75 +177,139 @@ public class StarteamConnection
         blameLines = prevoiusBlameData.getBlameLines();
       }
 
-      boolean needRetry = false;
-      int retryCount = 0;
-      do
-      {
 
-        if (blameLines != null && (blameLines.size() != expectedLines && blameLines.size() != expectedLines - 1))
-        {
-          LOG.info("Cached blame lines [" + blameLines.size() + "] is not same size as expected [" + expectedLines
-              + "].");
-          prevoiusBlameData = null;
-          blameLines = null;
-        }
 
         Stack<ViewMember> fileHistories = getHistories(it, prevoiusBlameData);
 
         if (fileHistories.size() == 1 && blameLines != null)
         {
-          LOG.info("No change since last build, return cached blame lines.revision:" + startRevision
+          if((blameLines.size() != expectedLines && blameLines.size() != expectedLines - 1)){
+            fileHistories = getHistories(history.iterator(), null);
+            startRevision = -1;
+          } 
+          else
+          {
+            LOG.info("No change since last build, return cached blame lines.revision:" + startRevision
               + " last modify date:" + prevoiusBlameData.getLastModifyDate());
-          return blameLines;
+            if (blameLines.size() == expectedLines - 1) {
+              blameLines.add(blameLines.get(blameLines.size() - 1));
+            }
+            output.blameResult(inputFile, blameLines);
+            return;
+          }
         }
 
         LOG.info("Start from revision======:" + startRevision);
-
-        ViewMember previous = null;
-        ViewMember current = null;
-
-        LOG.info("blame cache folder:" + StarteamFunctions.getBlameCacheBaseFolder().getPath());
-        java.io.File tmpFolder = new java.io.File(StarteamFunctions.getBlameCacheBaseFolder(), "temp");
-        tmpFolder.mkdirs();
-        java.io.File previousFile = new java.io.File(tmpFolder, "previous.tmp");
-        java.io.File currentFile = new java.io.File(tmpFolder, "current.tmp");
-        java.io.File temp;
-        previousFile.createNewFile();
-        currentFile.createNewFile();
-        StarTeamDiff stDiff = new StarTeamDiff();
-
-        int count = 0;
-
-        while (!fileHistories.isEmpty())
-        {
-          previous = current;
-          current = fileHistories.pop();
-
-          // move current to previous
-          temp = previousFile;
-          previousFile = currentFile;
-          currentFile = temp;
-          // check out current;
-          LOG.info("Start check out revision:" + VersionedObject.getViewVersion(current.getDotNotation()));
-
-          checkout(current, currentFile);
-          // generate blame lines
-          LOG.info("generate blame lines for revision:" + VersionedObject.getViewVersion(current.getDotNotation()));
-          blameLines = generateBlameLine(blameLines, previous, current, previousFile, currentFile, stDiff);
-        }
-        previousFile.delete();
-        currentFile.delete();
-        saveData(blameLines, stFile, current);
-        needRetry = blameLines != null
-            && (blameLines.size() != expectedLines && blameLines.size() != expectedLines - 1) && retryCount++ < 3;
-      } while (needRetry);
+       
+        coHisStactList.add(fileHistories);
+        blameContextMap.put(fileHistories.peek().getVMID(), new BlameContext(blameLines,inputFile,stFile,expectedLines));
     }
     catch (Exception e)
     {
       LOG.error("Can't blame file " + fileName, e);
     }
-    return blameLines;
+    finally{
+     
+    }
   }
+  
+  public void startBlame(){
+    HistoryFileDownloader downLoader=new HistoryFileDownloader();
+    downLoader.start();
+    while(!downLoader.isFinished()){
+      try
+      {
+        Thread.sleep(50);
+      }
+      catch (InterruptedException e)
+      {
+      }
+    }
+  }
+  private class HistoryFileDownloader extends Thread{
+
+    private boolean finished=false;
+    
+    
+    public boolean isFinished()
+    {
+      return finished;
+    }
+
+
+
+    @Override
+    public void run()
+    {
+      java.io.File temp= new java.io.File(StarteamFunctions.getBlameCacheBaseFolder(),getPathForConn());
+      java.io.File  tmpFolder=new java.io.File(temp,"temp");
+      tmpFolder.mkdirs();
+      long startTime=System.currentTimeMillis();
+      StarTeamDiff stDiff = new StarTeamDiff();
+      while (!coHisStactList.isEmpty())
+      {
+        Iterator<Stack<ViewMember>> it = coHisStactList.iterator();
+        while (it.hasNext())
+        {
+          Stack<ViewMember> histFiles=it.next();
+         
+          if(histFiles.isEmpty()){
+            it.remove();
+          }else{
+            ViewMember current= histFiles.pop();
+            LOG.info("Start co "+current.getDisplayName()+" revision:" + VersionedObject.getViewVersion(current.getDotNotation()));
+            java.io.File  currentFolder=new java.io.File(tmpFolder,""+current.getVMID());
+            currentFolder.mkdirs();
+            java.io.File currentFile = new java.io.File(currentFolder, "tmp."+VersionedObject.getViewVersion(current.getDotNotation()));
+            try
+            {
+              currentFile.createNewFile();
+              checkoutManager.checkoutTo((File) current, currentFile);
+              BlameContext bc=blameContextMap.get(current.getVMID());
+              bc.setCurrent(current);
+              bc.setCurrentFile(currentFile);
+              bc.setLastRecord(histFiles.isEmpty());
+            }
+            catch (IOException e)
+            {
+            }
+          }
+        }
+        if (checkoutManager.canCommit())
+        {
+          checkoutManager.commit();
+          for(BlameContext bc:blameContextMap.values()){
+            if(bc.isNeedBlame()){
+              try
+              {
+                bc.setBlameLines(generateBlameLine(bc.getBlameLines(),bc.getPrevious(),bc.getCurrent(),bc.getPreviousFile(),bc.getCurrentFile(),stDiff));
+                bc.blamed();
+                if(bc.isLastRecord()){
+                  saveData(bc.getBlameLines(),bc.getStFile(),bc.getCurrent());
+                  if (bc.getBlameLines().size() == bc.getExpectedLines() - 1) {
+                    bc.getBlameLines().add(bc.getBlameLines().get(bc.getBlameLines().size() - 1));
+                  }
+                  output.blameResult(bc.getInputFile(), bc.getBlameLines());
+                  LOG.info("finished blame file " + bc.getInputFile().relativePath()+", used "+(System.currentTimeMillis()-startTime)+" ms.");
+                }
+              }
+              catch (FileNotFoundException e)
+              {
+                
+              }
+              catch (IOException e)
+              {
+                
+              }
+            }
+          }
+        }
+      }
+      finished=true;
+    }
+    
+  }
+ 
 
   private void saveData(List<BlameLine> blameLines, File stFile, ViewMember current)
   {
@@ -364,8 +444,8 @@ public class StarteamConnection
         ua = userAccts[i];
         if (ua.getID() == user.getID())
         {
-          LOG.info("INFO: From \'" + user.getID() + "\' found existing user LogonName = " + ua.getLogOnName()
-              + " with ID \'" + ua.getID() + "\' and email \'" + ua.getEmailAddress() + "\'");
+//          LOG.info("INFO: From \'" + user.getID() + "\' found existing user LogonName = " + ua.getLogOnName()
+//              + " with ID \'" + ua.getID() + "\' and email \'" + ua.getEmailAddress() + "\'");
           int length = ua.getEmailAddress().indexOf('@');
           if (length > -1)
           {
@@ -401,15 +481,6 @@ public class StarteamConnection
 
   }
 
-  private void checkout(ViewMember current, java.io.File currentFile) throws IOException
-  {
-    checkoutManager.checkoutTo((File) current, currentFile);
-    if (checkoutManager.canCommit())
-    {
-      checkoutManager.commit();
-    }
-  }
-
   public CheckoutManager initCheckoutManager()
   {
     if (checkoutManager == null)
@@ -427,7 +498,7 @@ public class StarteamConnection
         @Override
         public void notifyProgress(CheckoutEvent coEvent)
         {
-          LOG.info("Expected: " + coEvent.getCurrentBytesExpected() + ",  so far: " + coEvent.getCurrentBytesSoFar());
+//         LOG.info("Expected: " + coEvent.getCurrentBytesExpected() + ",  so far: " + coEvent.getCurrentBytesSoFar());
 
         }
 
@@ -537,8 +608,15 @@ public class StarteamConnection
       return false;
     }
   }
+  
+  
 
-  private void checkParameters(String hostName, int port, String userName, String password, String projectName,
+  public void setOutput(BlameOutput output)
+  {
+    this.output = output;
+  }
+
+  private void checkParameters(String hostName, int port,String agenthostName, int agentport, String userName, String password, String projectName,
       String viewName)
   {
     if (null == hostName)

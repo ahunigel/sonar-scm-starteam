@@ -24,7 +24,10 @@ import java.io.IOException;
 import java.util.List;
 
 import org.junit.Test;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.scm.BlameCommand.BlameOutput;
 import org.sonar.api.batch.scm.BlameLine;
+import org.sonar.api.batch.fs.InputFile;
 
 import com.starteam.Folder;
 
@@ -45,7 +48,7 @@ public class StarteamConnectionTest {
 	@Test
 	public void testBlame(){
 		
-		StarteamConnection conn=new StarteamConnection("starteamserver.ers.na.emersonclimate.org", 49201, "sonar_hudson_tool","13m3rson", "JARU", ".Ref Track 16.x from Merged-JARU 15.1.0B19 - db schema 82","d:/blame");
+		StarteamConnection conn=new StarteamConnection("starteamserver.ers.na.emersonclimate.org", 49201,"CNXA1ER-STARTEA",5201, "sonar_hudson_tool","13m3rson", "JARU", ".16.3.0 from Merged 16.2.0B09 Plugins 16.2.0B11","d:/blame");
 		try {
 			conn.initialize();
 			File file;
@@ -53,11 +56,32 @@ public class StarteamConnectionTest {
 			file=new File(baseFolder,"Scripts/version.properties");
 			//Jaru\Software\Source\JavaCode\com\cpcus\jaru\biz\impl\estimation\estimator\ActivityExecutionEstimator.java
 			Folder folder=conn.findFolder("JARU/Software/JaruPlugins/ProActRMS/Source/JavaCode/com/cpcus/jaru/dataAccess/impl/");
-			List<BlameLine> result=(List<BlameLine>) conn.blame(folder, "RefrigerantTypeDAOImpl.java",101);
-			int i=0;
-			for(BlameLine bl:result){
-				System.out.println((++i)+":"+bl);
-			}
+			InputFile inputFile= new DefaultInputFile("", "RefrigerantTypeDAOImpl.java");
+			BlameOutput output=new BlameOutput(){
+
+        @Override
+        public void blameResult(InputFile inpuptFile, List<BlameLine> result)
+        {      
+          int i=0;
+          System.out.println("Blame Restul for:"+inpuptFile.relativePath()+" lines:"+result.size());
+//          for(BlameLine bl:result){
+//            System.out.println((++i)+":"+bl);
+//          }
+        }
+			  
+			  
+			};
+      conn.setOutput(output);
+			conn.blame(folder, "RefrigerantTypeDAOImpl.java",101,inputFile);
+			inputFile= new DefaultInputFile("", "RefrigerantServiceRecordDAOImpl");
+			conn.blame(folder, "RefrigerantServiceRecordDAOImpl.java",2255,inputFile);
+			inputFile= new DefaultInputFile("", "RmsAdvisoryDAOImpl.java");
+	    conn.blame(folder, "RmsAdvisoryDAOImpl.java",2255,inputFile);
+			
+			conn.startBlame();
+//			for(BlameLine bl:result){
+//				System.out.println((++i)+":"+bl);
+//			}
 		} catch(IOException e){
 			e.printStackTrace();
 			
