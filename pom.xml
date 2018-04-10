@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <parent>
     <groupId>org.codehaus.sonar-plugins</groupId>
     <artifactId>parent</artifactId>
     <version>19</version>
-    <relativePath />
+    <relativePath/>
   </parent>
+
   <artifactId>sonar-scm-starteam-plugin</artifactId>
-  <version>1.1</version>
+  <version>1.2</version>
   <name>SonarQube :: Plugins :: SCM :: STARTEAM</name>
   <packaging>sonar-plugin</packaging>
   <description>STARTEAM SCM Provider.</description>
@@ -19,17 +22,19 @@
     <name>SonarSource</name>
     <url>http://www.sonarsource.com</url>
   </organization>
-  
+
   <developers>
     <developer>
       <id>matthewzhu</id>
       <name>Matthew Zhu</name>
       <timezone>+8</timezone>
     </developer>
+    <developer>
+      <id>nigel.zheng</id>
+      <name>Nigel Zheng</name>
+      <timezone>+8</timezone>
+    </developer>
   </developers>
-
-
-  
 
   <properties>
     <sonar.buildVersion>5.1</sonar.buildVersion>
@@ -44,12 +49,12 @@
       <version>${sonar.buildVersion}</version>
       <scope>provided</scope>
     </dependency>
-  	<dependency>
-      <groupId>com.borland</groupId>
-      <artifactId>starteam</artifactId>
-      <version>14.0</version>
-    </dependency>
     <dependency>
+      <groupId>com.borland.starteam</groupId>
+      <artifactId>starteam</artifactId>
+      <version>16.0.47</version>
+    </dependency>
+    <!--<dependency>
       <groupId>com.borland</groupId>
       <artifactId>jsafe</artifactId>
       <version>14.0</version>
@@ -58,7 +63,7 @@
       <groupId>com.borland</groupId>
       <artifactId>ss</artifactId>
       <version>14.0</version>
-    </dependency>
+    </dependency>-->
     <!-- unit tests -->
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
