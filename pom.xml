@@ -14,7 +14,7 @@
   <version>1.2</version>
   <name>SonarQube :: Plugins :: SCM :: STARTEAM</name>
   <packaging>sonar-plugin</packaging>
-  <description>STARTEAM SCM Provider.</description>
+  <description>StarTeam SCM Provider for SonarQube</description>
   <url>http://redirect.sonarsource.com/plugins/scmstarteam.html</url>
   <inceptionYear>2015</inceptionYear>
 
@@ -38,7 +38,7 @@
 
   <properties>
     <sonar.buildVersion>5.1</sonar.buildVersion>
-    <sonar.pluginName>STARTEAM</sonar.pluginName>
+    <sonar.pluginName>StarTeam</sonar.pluginName>
     <sonar.pluginClass>org.sonar.plugins.scm.starteam.StarteamPlugin</sonar.pluginClass>
   </properties>
 
