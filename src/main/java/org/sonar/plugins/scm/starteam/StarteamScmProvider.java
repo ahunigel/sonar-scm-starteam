@@ -19,34 +19,33 @@
  */
 package org.sonar.plugins.scm.starteam;
 
-import java.io.File;
-
 import org.sonar.api.batch.scm.BlameCommand;
 import org.sonar.api.batch.scm.ScmProvider;
 
+import java.io.File;
+
 public class StarteamScmProvider extends ScmProvider {
 
-	private final StarteamBlameCommand command;
-	
-	public StarteamScmProvider(StarteamBlameCommand command){
-		this.command=command;
-	}
-	
-	@Override
-	public String key() {
-		 return "starteam";
-	}
+  private final StarteamBlameCommand command;
 
-	@Override
-	public BlameCommand blameCommand() {
-		return command;
-	}
+  public StarteamScmProvider(StarteamBlameCommand command) {
+    this.command = command;
+  }
 
-	@Override
-	public boolean supports(File baseDir) {
-		return command.isSupported();
-	}
-	
-	
+  @Override
+  public String key() {
+    return "starteam";
+  }
+
+  @Override
+  public BlameCommand blameCommand() {
+    return command;
+  }
+
+  @Override
+  public boolean supports(File baseDir) {
+    return command.isSupported();
+  }
+
 
 }

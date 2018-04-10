@@ -19,105 +19,116 @@
  */
 package org.sonar.plugins.scm.starteam;
 
+import org.sonar.api.batch.scm.BlameLine;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.sonar.api.batch.scm.BlameLine;
+public class BlameData implements Serializable {
+  /**
+   *
+   */
+  private static final long serialVersionUID = -7129003666026086885L;
+  private int revision;
+  private long lastModifyDate = -1;
+  private transient List<BlameLine> blameLines;
+  private List<BlameLineSerializable> serializableBlameLines;
 
-public class BlameData implements Serializable{
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7129003666026086885L;
-	private int revision;
-	private long lastModifyDate =-1;
-	private transient List<BlameLine> blameLines;
-	private List<BlameLineSerializable> serializableBlameLines;
-	public int getRevision() {
-		return revision;
-	}
-	public void setRevision(int revision) {
-		this.revision = revision;
-	}	
-	
-	public long getLastModifyDate() {
-		return lastModifyDate;
-	}
-	
-	public void setLastModifyDate(long lastModifyDate) {
-		this.lastModifyDate = lastModifyDate;
-	}
-	
-	public List<BlameLine> getBlameLines() {
-		if(blameLines==null&&serializableBlameLines!=null){
-			blameLines=new ArrayList<BlameLine>();
-			for(BlameLineSerializable bls:serializableBlameLines){
-				blameLines.add(bls.toBlameLine());
-			}
-				
-		}
-		return blameLines;
-	}
-	public void setBlameLines(List<BlameLine> blameLines) {
-		this.blameLines = blameLines;
-		serializableBlameLines= new ArrayList<BlameLineSerializable>();
-		for(BlameLine bl:blameLines){
-			serializableBlameLines.add(new BlameLineSerializable(bl));
-		}
-	}
-	public List<BlameLineSerializable> getSerializableBlameLines() {
-		return serializableBlameLines;
-	}
-	public void setSerializableBlameLines(
-			List<BlameLineSerializable> serializableBlameLines) {
-		this.serializableBlameLines = serializableBlameLines;
-	}
+  public int getRevision() {
+    return revision;
+  }
+
+  public void setRevision(int revision) {
+    this.revision = revision;
+  }
+
+  public long getLastModifyDate() {
+    return lastModifyDate;
+  }
+
+  public void setLastModifyDate(long lastModifyDate) {
+    this.lastModifyDate = lastModifyDate;
+  }
+
+  public List<BlameLine> getBlameLines() {
+    if (blameLines == null && serializableBlameLines != null) {
+      blameLines = new ArrayList<>();
+      for (BlameLineSerializable bls : serializableBlameLines) {
+        blameLines.add(bls.toBlameLine());
+      }
+
+    }
+    return blameLines;
+  }
+
+  public void setBlameLines(List<BlameLine> blameLines) {
+    this.blameLines = blameLines;
+    serializableBlameLines = new ArrayList<>();
+    for (BlameLine bl : blameLines) {
+      serializableBlameLines.add(new BlameLineSerializable(bl));
+    }
+  }
+
+  public List<BlameLineSerializable> getSerializableBlameLines() {
+    return serializableBlameLines;
+  }
+
+  public void setSerializableBlameLines(
+      List<BlameLineSerializable> serializableBlameLines) {
+    this.serializableBlameLines = serializableBlameLines;
+  }
 
 
+  static class BlameLineSerializable implements Serializable {
+    private String author;
+    private Date date;
+    private String revision;
 
-	static class BlameLineSerializable implements Serializable{
-		private String author;
-		private Date date;
-		private String revision;
-		
-		public BlameLineSerializable(){
-			
-		}
-		public BlameLine toBlameLine() {
-			BlameLine bl=new BlameLine();
-			bl.author(author);
-			bl.date(date);
-			bl.revision(revision);
-			return bl;
-			
-		}
-		public BlameLineSerializable(BlameLine blameLine){
-			this.author=blameLine.author();
-			this.date=blameLine.date();
-			this.revision=blameLine.revision();
-		}
-		
-		public String getAuthor() {
-			return author;
-		}
-		public void setAuthor(String author) {
-			this.author = author;
-		}
-		public Date getDate() {
-			return date;
-		}
-		public void setDate(Date date) {
-			this.date = date;
-		}
-		public String getRevision() {
-			return revision;
-		}
-		public void setRevision(String revision) {
-			this.revision = revision;
-		}
-		
-		
-	}
+    public BlameLineSerializable() {
+
+    }
+
+    public BlameLine toBlameLine() {
+      BlameLine bl = new BlameLine();
+      bl.author(author);
+      bl.date(date);
+      bl.revision(revision);
+      return bl;
+
+    }
+
+    public BlameLineSerializable(BlameLine blameLine) {
+      this.author = blameLine.author();
+      this.date = blameLine.date();
+      this.revision = blameLine.revision();
+    }
+
+    public String getAuthor() {
+      return author;
+    }
+
+    public void setAuthor(String author) {
+      this.author = author;
+    }
+
+    public Date getDate() {
+      return date;
+    }
+
+    public void setDate(Date date) {
+      this.date = date;
+    }
+
+    public String getRevision() {
+      return revision;
+    }
+
+    public void setRevision(String revision) {
+      this.revision = revision;
+    }
+
+
+  }
 }

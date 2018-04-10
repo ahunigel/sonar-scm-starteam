@@ -19,21 +19,20 @@
  */
 package org.sonar.plugins.scm.starteam;
 
-public class StarteamSCMException extends Exception{
+public class StarteamSCMException extends Exception {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2576054970402352307L;
+  /**
+   *
+   */
+  private static final long serialVersionUID = 2576054970402352307L;
 
-	public StarteamSCMException(String message, Throwable cause) {
-		super(message, cause);
-	}
+  public StarteamSCMException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-	public StarteamSCMException(String message) {
-		super(message);
-	}
-
+  public StarteamSCMException(String message) {
+    super(message);
+  }
 
 
 }

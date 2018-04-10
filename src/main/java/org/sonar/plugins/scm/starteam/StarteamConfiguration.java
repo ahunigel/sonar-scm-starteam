@@ -28,107 +28,104 @@ import org.sonar.api.utils.log.Loggers;
 
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public class StarteamConfiguration implements BatchComponent {
-	private static final int DEFAULT_PORT = 49201;
-	private static final Logger LOG = Loggers.get(StarteamConfiguration.class);
-	private final Settings settings;
-	public static final String STARTEAM_URL_FORMAT =
-		        "[username[:password]@]hostname:port/projectName/viewName";
-	
-	private boolean init = false;
-	private String user = null;
+  private static final int DEFAULT_PORT = 49201;
+  private static final Logger LOG = Loggers.get(StarteamConfiguration.class);
+  private final Settings settings;
+  public static final String STARTEAM_URL_FORMAT =
+      "[username[:password]@]hostname:port/projectName/viewName";
 
-	private String password = null;
-	
-	private String host;
+  private boolean init = false;
+  private String user = null;
 
-	private int port;
-	
-	 private String agenthost;
+  private String password = null;
 
-	  private int agentport;
+  private String host;
 
-    private String project;
-    
-    private String view;
-    
-    private String folder;
-    private  String cacheFolder;
-    
-    private String projectBaseFolder;
-	
-	public StarteamConfiguration(Settings settings) {
-		this.settings = settings;
-		init() ;
-	}
+  private int port;
 
-	private synchronized void init() {
-		if (!init) {
-			host = settings.getString("scm.starteam.host");
-			port = settings.getInt("scm.starteam.port");
-			agenthost = settings.getString("scm.starteam.agent.host");
+  private String agenthost;
+
+  private int agentport;
+
+  private String project;
+
+  private String view;
+
+  private String folder;
+  private String cacheFolder;
+
+  private String projectBaseFolder;
+
+  public StarteamConfiguration(Settings settings) {
+    this.settings = settings;
+    init();
+  }
+
+  private synchronized void init() {
+    if (!init) {
+      host = settings.getString("scm.starteam.host");
+      port = settings.getInt("scm.starteam.port");
+      agenthost = settings.getString("scm.starteam.agent.host");
       agentport = settings.getInt("scm.starteam.agent.port");
-			user = settings.getString("scm.starteam.user");
-			password = settings.getString("scm.starteam.password");
-			project = settings.getString("scm.starteam.project");
-			view = settings.getString("scm.starteam.view");
-			folder= settings.getString("scm.starteam.folder");		
-			cacheFolder=settings.getString("scm.blame.cache.folder");	
-			projectBaseFolder=settings.getString("sonar.projectBaseDir");
-			if(cacheFolder!=null){
-				LOG.info("Setting cache folder to :"+cacheFolder);
-				StarteamFunctions.setBlameCacheBaseFolder(cacheFolder);
-			}
-			init=true;
-		}
-	}
+      user = settings.getString("scm.starteam.user");
+      password = settings.getString("scm.starteam.password");
+      project = settings.getString("scm.starteam.project");
+      view = settings.getString("scm.starteam.view");
+      folder = settings.getString("scm.starteam.folder");
+      cacheFolder = settings.getString("scm.blame.cache.folder");
+      projectBaseFolder = settings.getString("sonar.projectBaseDir");
+      if (cacheFolder != null) {
+        LOG.info("Setting cache folder to :" + cacheFolder);
+        StarteamFunctions.setBlameCacheBaseFolder(cacheFolder);
+      }
+      init = true;
+    }
+  }
 
-	public String getUserName() {
+  public String getUserName() {
 
-		return user;
-	}
+    return user;
+  }
 
-	public String getPassword() {
-		return password;
-	}
+  public String getPassword() {
+    return password;
+  }
 
-	public String getHostName() {
-		return host;
-	}
+  public String getHostName() {
+    return host;
+  }
 
-	public int getPort() {
-		return port;
-	}
+  public int getPort() {
+    return port;
+  }
 
-	public String getProject() {
-		return project;
-	}
+  public String getProject() {
+    return project;
+  }
 
-	public String getView() {
-		return view;
-	}
+  public String getView() {
+    return view;
+  }
 
-	public String getFolder() {
-		return folder;
-	}
+  public String getFolder() {
+    return folder;
+  }
 
-	public String getCacheFolder() {
-		return cacheFolder;
-	}
+  public String getCacheFolder() {
+    return cacheFolder;
+  }
 
-	public String getProjectBaseFolder() {
-		return projectBaseFolder;
-	}
+  public String getProjectBaseFolder() {
+    return projectBaseFolder;
+  }
 
-  public String getAgenthost()
-  {
+  public String getAgenthost() {
     return agenthost;
   }
 
-  public int getAgentport()
-  {
+  public int getAgentport() {
     return agentport;
   }
-	
-	
+
 
 }

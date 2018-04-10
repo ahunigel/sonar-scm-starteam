@@ -20,81 +20,76 @@
 
 package org.sonar.plugins.scm.starteam;
 
-import java.io.File;
-import java.io.IOException;
-
+import com.starteam.Folder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.scm.BlameCommand;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-import com.starteam.Folder;
+import java.io.File;
+import java.io.IOException;
 
 public class StarteamBlameCommand extends BlameCommand {
 
-	private static final Logger LOG = Loggers.get(StarteamBlameCommand.class);
-	private StarteamConfiguration configuration;
+  private static final Logger LOG = Loggers.get(StarteamBlameCommand.class);
+  private StarteamConfiguration configuration;
 
-	public StarteamBlameCommand(StarteamConfiguration configuration) {
-		this.configuration = configuration;
-	}
-	
-	public boolean isSupported(){
-		return configuration.getProject()!=null&configuration.getHostName()!=null;
-	}
-	@Override
-	public void blame(BlameInput input, BlameOutput output) {
-		File  projectBaseFolder=new File(configuration.getProjectBaseFolder());
-		LOG.info("blame projectBaseFolder:"+projectBaseFolder.getPath()+" baseDir: " + input.fileSystem().baseDir().getPath()+" working dir:"+input.fileSystem().workDir().getPath());
-		StarteamConnection conn=new StarteamConnection(configuration);
-		conn.setOutput(output);
-		try {
-			conn.initialize();	
-			for (InputFile inputFile : input.filesToBlame()) {
-				Folder baseFolder=conn.findFolder(configuration.getFolder()+getFolderPath(projectBaseFolder,inputFile.absolutePath()));
-				//LOG.info("set alternatePathFragment:"+inputFile.file().getParent());
-				//baseFolder.setAlt//ernatePathFragment(inputFile.file().getParent());
-				blame(conn,output, baseFolder, inputFile);
-			}
-			conn.startBlame();
+  public StarteamBlameCommand(StarteamConfiguration configuration) {
+    this.configuration = configuration;
+  }
+
+  public boolean isSupported() {
+    return configuration.getProject() != null && configuration.getHostName() != null;
+  }
+
+  @Override
+  public void blame(BlameInput input, BlameOutput output) {
+    File projectBaseFolder = new File(configuration.getProjectBaseFolder());
+    LOG.info("blame projectBaseFolder:" + projectBaseFolder.getPath() + " baseDir: " + input.fileSystem().baseDir().getPath() + " working dir:" + input.fileSystem().workDir().getPath());
+    StarteamConnection conn = new StarteamConnection(configuration);
+    conn.setOutput(output);
+    try {
+      conn.initialize();
+      for (InputFile inputFile : input.filesToBlame()) {
+        Folder baseFolder = conn.findFolder(configuration.getFolder() + getFolderPath(projectBaseFolder, inputFile.absolutePath()));
+        //LOG.info("set alternatePathFragment:"+inputFile.file().getParent());
+        //baseFolder.setAlt//ernatePathFragment(inputFile.file().getParent());
+        blame(conn, output, baseFolder, inputFile);
+      }
+      conn.startBlame();
 //			ExecutorService executorService = Executors.newFixedThreadPool(1);
 //			List<Future<Void>> tasks = submitTasks(conn,input, output, executorService);
 //			waitForTaskToComplete(executorService, tasks);			
-		} catch (StarteamSCMException e) {
-			LOG.error("Fail to init star team connection.",e);
-		} catch (IOException e) {
-			LOG.error("IOException",e);
-		}catch(Exception e){
-			LOG.error("IOException",e);			
-		}finally{
-			conn.close();
-		}
-
-	
-		
-	}
-
-	private String getFolderPath(File folder,String path) {
-		String folderPath = folder.getAbsolutePath().toLowerCase().replaceAll("\\\\", "/");
-		String pathLower= path.toLowerCase();
-		int endIndex=path.lastIndexOf("/");
-		int beginIndex=0;
-		LOG.info(pathLower.startsWith(folderPath)+" pathLower:"+pathLower+" folder:"+folderPath);
-		if(pathLower.startsWith(folderPath)){
-			beginIndex=folderPath.length();
-		}
-		String result= path.substring(beginIndex,endIndex);
-		result=result.startsWith("/")?result:"/"+result;
-		return result;
-	}
+    } catch (StarteamSCMException e) {
+      LOG.error("Fail to init star team connection.", e);
+    } catch (Exception e) {
+      LOG.error("IOException", e);
+    } finally {
+      conn.close();
+    }
 
 
+  }
 
-	private void blame(StarteamConnection conn,BlameOutput output, final Folder baseDir,
-			InputFile inputFile) throws IOException {
-		conn.blame(baseDir, inputFile.file().getName(),inputFile.lines(),inputFile);
-	}
+  private String getFolderPath(File folder, String path) {
+    String folderPath = folder.getAbsolutePath().toLowerCase().replaceAll("\\\\", "/");
+    String pathLower = path.toLowerCase();
+    int endIndex = path.lastIndexOf("/");
+    int beginIndex = 0;
+    LOG.info(pathLower.startsWith(folderPath) + " pathLower:" + pathLower + " folder:" + folderPath);
+    if (pathLower.startsWith(folderPath)) {
+      beginIndex = folderPath.length();
+    }
+    String result = path.substring(beginIndex, endIndex);
+    result = result.startsWith("/") ? result : "/" + result;
+    return result;
+  }
 
-	
+
+  private void blame(StarteamConnection conn, BlameOutput output, final Folder baseDir,
+                     InputFile inputFile) throws IOException {
+    conn.blame(baseDir, inputFile.file().getName(), inputFile.lines(), inputFile);
+  }
+
 
 }

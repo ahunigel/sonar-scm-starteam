@@ -19,24 +19,23 @@
  */
 package org.sonar.plugins.scm.starteam;
 
+import com.google.common.collect.ImmutableList;
+import org.sonar.api.SonarPlugin;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sonar.api.SonarPlugin;
-
-import com.google.common.collect.ImmutableList;
-
 public class StarteamPlugin extends SonarPlugin {
 
-	@Override
-	public List getExtensions() {
-		List result = new ArrayList();
-		result.addAll(
-			ImmutableList.of(
-				StarteamScmProvider.class,
-				StarteamConfiguration.class, 
-				StarteamBlameCommand.class));
-		return result;
-	}	
+  @Override
+  public List getExtensions() {
+    List result = new ArrayList();
+    result.addAll(
+        ImmutableList.of(
+            StarteamScmProvider.class,
+            StarteamConfiguration.class,
+            StarteamBlameCommand.class));
+    return result;
+  }
 
 }
