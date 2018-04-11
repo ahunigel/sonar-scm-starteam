@@ -179,6 +179,7 @@ public class StarteamConnection {
       try {
         Thread.sleep(50);
       } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
       }
     }
   }
@@ -221,6 +222,7 @@ public class StarteamConnection {
               bc.setCurrentFile(currentFile);
               bc.setLastRecord(histFiles.isEmpty());
             } catch (IOException e) {
+              LOG.error("Cannot co " + current.getDisplayName(), e);
             }
           }
         }
@@ -239,10 +241,8 @@ public class StarteamConnection {
                   output.blameResult(bc.getInputFile(), bc.getBlameLines());
                   LOG.info("finished blame file " + bc.getInputFile().relativePath() + ", used " + (System.currentTimeMillis() - startTime) + " ms.");
                 }
-              } catch (FileNotFoundException e) {
-
               } catch (IOException e) {
-
+                LOG.error("Cannot blame " + bc.getInputFile().relativePath(), e);
               }
             }
           }
@@ -267,6 +267,7 @@ public class StarteamConnection {
   private List<BlameLine> generateBlameLine(List<BlameLine> blameLines, ViewMember previous, ViewMember current,
                                             java.io.File previousFile, java.io.File currentFile, StarTeamDiff stDiff) throws FileNotFoundException,
       IOException {
+
     String username;
     Date modifyTime;
     String revision;
@@ -277,15 +278,15 @@ public class StarteamConnection {
         modifyTime = current.getModifiedTime().toJavaDate();
         blameLines = new ArrayList<>();
         FileReader fr = new FileReader(currentFile);
-        LineNumberReader lnr = new LineNumberReader(fr);
-        while (lnr.readLine() != null) {
-          BlameLine bl = new BlameLine();
-          bl.author(username);
-          bl.date(modifyTime);
-          bl.revision(revision);
-          blameLines.add(bl);
+        try (LineNumberReader lnr = new LineNumberReader(fr)) {
+          while (lnr.readLine() != null) {
+            BlameLine bl = new BlameLine();
+            bl.author(username);
+            bl.date(modifyTime);
+            bl.revision(revision);
+            blameLines.add(bl);
+          }
         }
-        lnr.close();
       }
     } else {
       LOG.debug("Different From " + previous.getRevisionNumber() + " to " + current.getRevisionNumber());
@@ -352,9 +353,9 @@ public class StarteamConnection {
         srvAdmin = server.getAdministration();
         userAccts = srvAdmin.getUsers();
       } catch (Exception e) {
-        LOG.info("WARNING: Looks like this user does not have the permission to access UserAccounts on the StarTeam Server!");
-        LOG.info("WARNING: Please contact your administrator and ask to be given the permission \"Administer User Accounts\" on the server.");
-        LOG.info("WARNING: Defaulting to just using User Full Names which breaks the ability to send email to the individuals who break the build in Hudson!");
+        LOG.warn("WARNING: Looks like this user does not have the permission to access UserAccounts on the StarTeam Server!");
+        LOG.warn("WARNING: Please contact your administrator and ask to be given the permission \"Administer User Accounts\" on the server.");
+        LOG.warn("WARNING: Defaulting to just using User Full Names which breaks the ability to send email to the individuals who break the build in Hudson!");
         canReadUserAccts = false;
       }
     }
