@@ -5,7 +5,7 @@
 
   <groupId>org.sonarsource.plugins.starteam</groupId>
   <artifactId>sonar-scm-starteam-plugin</artifactId>
-  <version>1.3</version>
+  <version>1.3.1</version>
   <name>SonarQube :: Plugins :: SCM :: STARTEAM</name>
   <packaging>sonar-plugin</packaging>
   <description>StarTeam SCM Provider for SonarQube</description>
@@ -32,7 +32,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <sonar.buildVersion>5.6</sonar.buildVersion>
+    <sonar.apiVersion>5.6</sonar.apiVersion>
     <jdk.min.version>1.8</jdk.min.version>
     <sonar.pluginName>StarTeam</sonar.pluginName>
     <sonar.pluginClass>org.sonar.plugins.scm.starteam.StarteamPlugin</sonar.pluginClass>
@@ -42,7 +42,7 @@
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-plugin-api</artifactId>
-      <version>${sonar.buildVersion}</version>
+      <version>${sonar.apiVersion}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -53,7 +53,7 @@
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-testing-harness</artifactId>
-      <version>${sonar.buildVersion}</version>
+      <version>${sonar.apiVersion}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

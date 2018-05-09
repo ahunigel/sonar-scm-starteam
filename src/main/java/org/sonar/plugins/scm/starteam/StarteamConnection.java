@@ -210,7 +210,7 @@ public class StarteamConnection {
             it.remove();
           } else {
             ViewMember current = histFiles.pop();
-            LOG.info("Start co " + current.getDisplayName() + " vmid:" + current.getVMID() + " revision:" + VersionedObject.getViewVersion(current.getDotNotation()));
+            LOG.info("Start co history " + current.getDisplayName() + " vmid:" + current.getVMID() + " revision:" + VersionedObject.getViewVersion(current.getDotNotation()));
             java.io.File currentFolder = new java.io.File(tmpFolder, "" + current.getVMID());
             currentFolder.mkdirs();
             java.io.File currentFile = new java.io.File(currentFolder, "tmp." + VersionedObject.getViewVersion(current.getDotNotation()));
@@ -221,7 +221,7 @@ public class StarteamConnection {
               bc.setCurrent(current);
               bc.setCurrentFile(currentFile);
               bc.setLastRecord(histFiles.isEmpty());
-            } catch (IOException e) {
+            } catch (Exception e) {
               LOG.error("Cannot co " + current.getDisplayName() + " vmid:" + current.getVMID(), e);
             }
           }
@@ -229,9 +229,11 @@ public class StarteamConnection {
         LOG.info("commit checkout if available? {}", checkoutManager.canCommit());
         if (checkoutManager.canCommit()) {
           checkoutManager.commit();
+          LOG.info("{} files are in the blame list", blameContextMap.size());
           for (BlameContext bc : blameContextMap.values()) {
             if (bc.isNeedBlame()) {
               try {
+                LOG.info("start blame file " + bc.getInputFile().relativePath());
                 bc.setBlameLines(generateBlameLine(bc.getBlameLines(), bc.getPrevious(), bc.getCurrent(), bc.getPreviousFile(), bc.getCurrentFile(), stDiff));
                 bc.blamed();
                 if (bc.isLastRecord()) {
@@ -242,9 +244,11 @@ public class StarteamConnection {
                   output.blameResult(bc.getInputFile(), bc.getBlameLines());
                   LOG.info("finished blame file " + bc.getInputFile().relativePath() + ", used " + (System.currentTimeMillis() - startTime) + " ms.");
                 }
-              } catch (IOException e) {
+              } catch (Exception e) {
                 LOG.error("Cannot blame " + bc.getInputFile().relativePath(), e);
               }
+            } else {
+              LOG.debug("No need to blame file {}", bc.getInputFile().relativePath());
             }
           }
         }
