@@ -20,14 +20,15 @@
 
 package org.sonar.plugins.scm.starteam;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public class StarteamConfiguration implements BatchComponent {
+@BatchSide
+public class StarteamConfiguration {
   private static final int DEFAULT_PORT = 49201;
   private static final Logger LOG = Loggers.get(StarteamConfiguration.class);
   private final Settings settings;

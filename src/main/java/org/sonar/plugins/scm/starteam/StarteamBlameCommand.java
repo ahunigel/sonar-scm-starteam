@@ -45,13 +45,15 @@ public class StarteamBlameCommand extends BlameCommand {
   @Override
   public void blame(BlameInput input, BlameOutput output) {
     File projectBaseFolder = new File(configuration.getProjectBaseFolder());
-    LOG.info("blame projectBaseFolder:" + projectBaseFolder.getPath() + " baseDir: " + input.fileSystem().baseDir().getPath() + " working dir:" + input.fileSystem().workDir().getPath());
+    LOG.info("****  start blaming\nprojectBaseFolder: " + projectBaseFolder.getPath() + "\nbaseDir: "
+        + input.fileSystem().baseDir().getPath() + "\nworking dir: " + input.fileSystem().workDir().getPath());
     StarteamConnection conn = new StarteamConnection(configuration);
     conn.setOutput(output);
     try {
       conn.initialize();
       for (InputFile inputFile : input.filesToBlame()) {
-        Folder baseFolder = conn.findFolder(configuration.getFolder() + getFolderPath(projectBaseFolder, inputFile.absolutePath()));
+        Folder baseFolder = conn.findFolder(configuration.getFolder()
+            + getFolderPath(projectBaseFolder, inputFile.absolutePath()));
         //LOG.info("set alternatePathFragment:"+inputFile.file().getParent());
         //baseFolder.setAlt//ernatePathFragment(inputFile.file().getParent());
         blame(conn, output, baseFolder, inputFile);
@@ -61,7 +63,7 @@ public class StarteamBlameCommand extends BlameCommand {
 //			List<Future<Void>> tasks = submitTasks(conn,input, output, executorService);
 //			waitForTaskToComplete(executorService, tasks);			
     } catch (StarteamSCMException e) {
-      LOG.error("Fail to init star team connection.", e);
+      LOG.error("Fail to init StarTeam connection.", e);
     } catch (Exception e) {
       LOG.error("IOException", e);
     } finally {
