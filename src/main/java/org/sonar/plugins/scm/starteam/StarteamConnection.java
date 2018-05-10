@@ -202,6 +202,7 @@ public class StarteamConnection {
       long startTime = System.currentTimeMillis();
       StarTeamDiff stDiff = new StarTeamDiff();
       while (!coHisStactList.isEmpty()) {
+        LOG.info("coHisStactList rest size={}", coHisStactList.size());
         Iterator<Stack<ViewMember>> it = coHisStactList.iterator();
         while (it.hasNext()) {
           Stack<ViewMember> histFiles = it.next();
@@ -210,7 +211,9 @@ public class StarteamConnection {
             it.remove();
           } else {
             ViewMember current = histFiles.pop();
-            LOG.info("Start co history " + current.getDisplayName() + " vmid:" + current.getVMID() + " revision:" + VersionedObject.getViewVersion(current.getDotNotation()));
+            LOG.info("Start co history {} vmid: {} revision: {}, histFiles rest size={}",
+                current.getDisplayName(), current.getVMID(), VersionedObject.getViewVersion(current.getDotNotation()),
+                histFiles.size());
             java.io.File currentFolder = new java.io.File(tmpFolder, "" + current.getVMID());
             currentFolder.mkdirs();
             java.io.File currentFile = new java.io.File(currentFolder, "tmp." + VersionedObject.getViewVersion(current.getDotNotation()));
@@ -228,7 +231,13 @@ public class StarteamConnection {
         }
         LOG.info("commit checkout if available? {}", checkoutManager.canCommit());
         if (checkoutManager.canCommit()) {
-          checkoutManager.commit();
+          LOG.info("checkoutManager start to commit, progress");
+          try {
+            checkoutManager.commit();
+          } catch (Exception e) {
+            LOG.error("Cannot commit checkout", e);
+            break;
+          }
           LOG.info("{} files are in the blame list", blameContextMap.size());
           for (BlameContext bc : blameContextMap.values()) {
             if (bc.isNeedBlame()) {
