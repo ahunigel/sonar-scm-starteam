@@ -25,11 +25,10 @@ public class StarteamPlugin implements Plugin {
 
   @Override
   public void define(Context context) {
-    context.addExtensions(
-        StarteamScmProvider.class,
-        StarteamConfiguration.class,
-        StarteamBlameCommand.class
-    );
+    context.addExtensions(StarteamScmProvider.class,
+        StarteamBlameCommand.class,
+        StarteamConfiguration.class);
+    context.addExtensions(StarteamConfiguration.getProperties());
   }
 
 }

@@ -79,7 +79,7 @@ public class StarteamConnection {
   }
 
   public StarteamConnection(StarteamConfiguration configuration) {
-    this(configuration.getHostName(), configuration.getPort(), configuration.getAgenthost(), configuration.getAgentport(),
+    this(configuration.getHostName(), configuration.getPort(), configuration.getAgentHost(), configuration.getAgentPort(),
         configuration.getUserName(), configuration.getPassword(), configuration.getProject(),
         configuration.getView(), configuration.getCacheFolder());
   }
