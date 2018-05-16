@@ -36,13 +36,15 @@ import java.io.IOException;
 import java.io.LineNumberReader;
 import java.util.*;
 
+import static org.sonar.plugins.scm.starteam.StarteamConfiguration.*;
+
 public class StarteamConnection {
   private static final Logger LOG = Loggers.get(StarteamConnection.class);
 
   private final String hostName;
   private final int port;
-  private final String agenthostName;
-  private final int agentport;
+  private final String agentHostName;
+  private final int agentPort;
   private final String userName;
   private final String password;
   private final String projectName;
@@ -58,14 +60,14 @@ public class StarteamConnection {
   private boolean canReadUserAccts = true;
   private List<Stack<ViewMember>> coHisStactList = new ArrayList<Stack<ViewMember>>();
   private Map<Integer, BlameContext> blameContextMap = new HashMap<Integer, BlameContext>();
-  private User[] userAccts = null;
+  private User[] userAccounts = null;
 
   private transient CheckoutManager checkoutManager;
 
-  public StarteamConnection(String hostName, int port, String agenthostName, int agentport,
+  public StarteamConnection(String hostName, int port, String agentHostName, int agentPort,
                             String userName, String password, String projectName,
                             String viewName, String cacheFolder) {
-    checkParameters(hostName, port, agenthostName, agentport, userName, password, projectName, viewName);
+    checkParameters(hostName, port, agentHostName, agentPort, userName, password, projectName, viewName);
     this.hostName = hostName;
     this.port = port;
     this.userName = userName;
@@ -73,15 +75,15 @@ public class StarteamConnection {
     this.projectName = projectName;
     this.viewName = viewName;
     this.cacheFolder = cacheFolder;
-    this.agenthostName = agenthostName;
-    this.agentport = agentport;
+    this.agentHostName = agentHostName;
+    this.agentPort = agentPort;
     // this.folderName = folderName;
   }
 
   public StarteamConnection(StarteamConfiguration configuration) {
-    this(configuration.getHostName(), configuration.getPort(), configuration.getAgentHost(), configuration.getAgentPort(),
-        configuration.getUserName(), configuration.getPassword(), configuration.getProject(),
-        configuration.getView(), configuration.getCacheFolder());
+    this(configuration.host(), configuration.port(), configuration.agentHost(), configuration.agentPort(),
+        configuration.user(), configuration.password(), configuration.project(),
+        configuration.view(), configuration.cacheFolder());
   }
 
   private ServerInfo createServerInfo() {
@@ -90,9 +92,9 @@ public class StarteamConnection {
     serverInfo.setConnectionType(ServerConfiguration.PROTOCOL_TCP_IP_SOCKETS);
     serverInfo.setHost(this.hostName);
     serverInfo.setPort(this.port);
-    if (this.agenthostName != null && !this.agenthostName.isEmpty()) {
-      serverInfo.setMPXCacheAgentAddress(agenthostName);
-      serverInfo.setMPXCacheAgentPort(this.agentport);
+    if (this.agentHostName != null && !this.agentHostName.isEmpty()) {
+      serverInfo.setMPXCacheAgentAddress(agentHostName);
+      serverInfo.setMPXCacheAgentPort(this.agentPort);
       serverInfo.setMPXCacheAgentThreadCount(2);
       serverInfo.setEnableCacheAgentForFileContent(true);
     }
@@ -229,9 +231,9 @@ public class StarteamConnection {
             }
           }
         }
-        LOG.info("commit checkout if available? {}", checkoutManager.canCommit());
+
         if (checkoutManager.canCommit()) {
-          LOG.info("checkoutManager start to commit, progress");
+          LOG.info("checkoutManager start to commit");
           try {
             checkoutManager.commit();
           } catch (Exception e) {
@@ -362,10 +364,10 @@ public class StarteamConnection {
   }
 
   private String getUserName(User user) {
-    if (userAccts == null && canReadUserAccts) {
+    if (userAccounts == null && canReadUserAccts) {
       try {
         srvAdmin = server.getAdministration();
-        userAccts = srvAdmin.getUsers();
+        userAccounts = srvAdmin.getUsers();
       } catch (Exception e) {
         LOG.warn("WARNING: Looks like this user does not have the permission to access UserAccounts on the StarTeam Server!");
         LOG.warn("WARNING: Please contact your administrator and ask to be given the permission \"Administer User Accounts\" on the server.");
@@ -375,8 +377,8 @@ public class StarteamConnection {
     }
     if (canReadUserAccts) {
       User ua = null;
-      for (int i = 0; i < userAccts.length; i++) {
-        ua = userAccts[i];
+      for (int i = 0; i < userAccounts.length; i++) {
+        ua = userAccounts[i];
         if (ua.getID() == user.getID()) {
 //          LOG.info("INFO: From \'" + user.getID() + "\' found existing user LogonName = " + ua.getLogOnName()
 //              + " with ID \'" + ua.getID() + "\' and email \'" + ua.getEmailAddress() + "\'");
@@ -468,7 +470,7 @@ public class StarteamConnection {
    * @param server
    * @param projectname
    * @return Project specified by the projectname
-   * @throws StarTeamSCMException
+   * @throws StarteamSCMException
    */
   static Project findProjectOnServer(final Server server, final String projectname) throws StarteamSCMException {
     for (Project project : server.getProjects()) {
@@ -483,7 +485,7 @@ public class StarteamConnection {
    * @param project
    * @param viewname
    * @return
-   * @throws StarTeamSCMException
+   * @throws StarteamSCMException
    */
   static View findViewInProject(final Project project, final String viewname) throws StarteamSCMException {
     for (View view : project.getAccessibleViews()) {
@@ -519,15 +521,15 @@ public class StarteamConnection {
   private void checkParameters(String hostName, int port, String agenthostName, int agentport, String userName, String password, String projectName,
                                String viewName) {
     if (null == hostName)
-      throw new NullPointerException("hostName cannot be null");
+      throw new NullPointerException("StarTeam host cannot be null, " + HOST_PROP_KEY + " should be configured!!");
     if (null == userName)
-      throw new NullPointerException("user cannot be null");
+      throw new NullPointerException("StarTeam user cannot be null, " + USER_PROP_KEY + " should be configured!!");
     if (null == password)
-      throw new NullPointerException("passwd cannot be null");
+      throw new NullPointerException("StarTeam passwd cannot be null, " + PASSWORD_PROP_KEY + " should be configured!!");
     if (null == projectName)
-      throw new NullPointerException("projectName cannot be null");
+      throw new NullPointerException("StarTeam projectName cannot be null, " + PROJECT_PROP_KEY + " should be configured!!");
     if (null == viewName)
-      throw new NullPointerException("viewName cannot be null");
+      throw new NullPointerException("StarTeam viewName cannot be null, " + VIEW_PROP_KEY + " should be configured!!");
 
     if ((port < 1) || (port > 65535))
       throw new IllegalArgumentException("Invalid port: " + port);

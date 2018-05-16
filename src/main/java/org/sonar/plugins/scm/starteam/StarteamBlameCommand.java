@@ -39,12 +39,12 @@ public class StarteamBlameCommand extends BlameCommand {
   }
 
   public boolean isSupported() {
-    return configuration.getProject() != null && configuration.getHostName() != null;
+    return configuration.project() != null && configuration.host() != null;
   }
 
   @Override
   public void blame(BlameInput input, BlameOutput output) {
-    File projectBaseFolder = new File(configuration.getProjectBaseFolder());
+    File projectBaseFolder = new File(configuration.settings().getString("sonar.projectBaseDir"));
     LOG.info("****  start blaming\nprojectBaseFolder: " + projectBaseFolder.getPath() + "\nbaseDir: "
         + input.fileSystem().baseDir().getPath() + "\nworking dir: " + input.fileSystem().workDir().getPath());
     StarteamConnection conn = new StarteamConnection(configuration);
@@ -52,7 +52,7 @@ public class StarteamBlameCommand extends BlameCommand {
     try {
       conn.initialize();
       for (InputFile inputFile : input.filesToBlame()) {
-        Folder baseFolder = conn.findFolder(configuration.getFolder()
+        Folder baseFolder = conn.findFolder(configuration.folder()
             + getFolderPath(projectBaseFolder, inputFile.absolutePath()));
         //LOG.info("set alternatePathFragment:"+inputFile.file().getParent());
         //baseFolder.setAlt//ernatePathFragment(inputFile.file().getParent());

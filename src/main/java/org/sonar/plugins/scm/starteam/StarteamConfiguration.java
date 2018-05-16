@@ -36,38 +36,28 @@ import java.util.List;
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @BatchSide
 public class StarteamConfiguration {
-  private static final int DEFAULT_PORT = 49201;
   private static final Logger LOG = Loggers.get(StarteamConfiguration.class);
   public static final String STARTEAM_URL_FORMAT =
-      "[username[:password]@]hostname:port/projectName/viewName";
+      "[username[:password]@]host:port/projectName/viewName";
 
   private static final String CATEGORY_STARTEAM = "STARTEAM";
-  public static final String HOST_PROP_KEY = "scm.starteam.host";
-  public static final String PORT_PROP_KEY = "scm.starteam.port";
-  public static final String PROJECT_PROP_KEY = "scm.starteam.project";
-  public static final String VIEW_PROP_KEY = "scm.starteam.view";
-  public static final String FOLDER_PROP_KEY = "scm.starteam.folder";
-  public static final String USER_PROP_KEY = "scm.starteam.user";
-  public static final String PASSWORD_PROP_KEY = "scm.starteam.password";
-  public static final String AGENT_HOST_PROP_KEY = "scm.starteam.agent.host";
-  public static final String AGENT_PORT_PROP_KEY = "scm.starteam.agent.port";
-  public static final String BLAME_CACHE_FOLDER_PROP_KEY = "scm.blame.cache.folder";
+  public static final String HOST_PROP_KEY = "sonar.starteam.host";
+  public static final String PORT_PROP_KEY = "sonar.starteam.port";
+  public static final String PROJECT_PROP_KEY = "sonar.starteam.project";
+  public static final String VIEW_PROP_KEY = "sonar.starteam.view";
+  public static final String FOLDER_PROP_KEY = "sonar.starteam.folder";
+  public static final String USER_PROP_KEY = "sonar.starteam.user";
+  public static final String PASSWORD_PROP_KEY = "sonar.starteam.password";
+  public static final String AGENT_HOST_PROP_KEY = "sonar.starteam.agent.host";
+  public static final String AGENT_PORT_PROP_KEY = "sonar.starteam.agent.port";
+  public static final String BLAME_CACHE_FOLDER_PROP_KEY = "sonar.blame.cache.folder";
+  public static final String DEFAULT_BLAME_FOLDER = ".starteam";
 
   private final Settings settings;
 
   private boolean init = false;
 
-  private String user = null;
-  private String password = null;
-  private String host;
-  private int port;
-  private String agentHost;
-  private int agentPort;
-  private String project;
-  private String view;
-  private String folder;
   private String cacheFolder;
-  private String projectBaseFolder;
 
   public StarteamConfiguration(Settings settings) {
     this.settings = settings;
@@ -78,7 +68,7 @@ public class StarteamConfiguration {
     return Arrays.asList(
         PropertyDefinition.builder(HOST_PROP_KEY)
             .name("Hostname")
-            .description("StarTeam server hostname")
+            .description("StarTeam server host")
             .type(PropertyType.STRING)
             .onQualifiers(Qualifiers.PROJECT)
             .category(CoreProperties.CATEGORY_SCM)
@@ -89,6 +79,7 @@ public class StarteamConfiguration {
             .name("Port")
             .description("StarTeam server port")
             .type(PropertyType.INTEGER)
+            .defaultValue("49201")
             .onQualifiers(Qualifiers.PROJECT)
             .category(CoreProperties.CATEGORY_SCM)
             .subCategory(CATEGORY_STARTEAM)
@@ -170,67 +161,57 @@ public class StarteamConfiguration {
 
   private synchronized void init() {
     if (!init) {
-      host = settings.getString(HOST_PROP_KEY);
-      port = settings.getInt(PORT_PROP_KEY);
-      agentHost = settings.getString(AGENT_HOST_PROP_KEY);
-      agentPort = settings.getInt(AGENT_PORT_PROP_KEY);
-      user = settings.getString(USER_PROP_KEY);
-      password = settings.getString(PASSWORD_PROP_KEY);
-      project = settings.getString(PROJECT_PROP_KEY);
-      view = settings.getString(VIEW_PROP_KEY);
-      folder = settings.getString(FOLDER_PROP_KEY);
       cacheFolder = settings.getString(BLAME_CACHE_FOLDER_PROP_KEY);
-      projectBaseFolder = settings.getString("sonar.projectBaseDir");
       if (cacheFolder != null) {
-        LOG.info("Setting cache folder to :" + cacheFolder);
+        LOG.info("Configured blame cache folder is: " + cacheFolder);
         StarteamFunctions.setBlameCacheBaseFolder(cacheFolder);
       }
       init = true;
     }
   }
 
-  public String getUserName() {
-    return user;
+  public String user() {
+    return settings.getString(USER_PROP_KEY);
   }
 
-  public String getPassword() {
-    return password;
+  public String password() {
+    return settings.getString(PASSWORD_PROP_KEY);
   }
 
-  public String getHostName() {
-    return host;
+  public String host() {
+    return settings.getString(HOST_PROP_KEY);
   }
 
-  public int getPort() {
-    return port;
+  public int port() {
+    return settings.getInt(PORT_PROP_KEY);
   }
 
-  public String getProject() {
-    return project;
+  public String project() {
+    return settings.getString(PROJECT_PROP_KEY);
   }
 
-  public String getView() {
-    return view;
+  public String view() {
+    return settings.getString(VIEW_PROP_KEY);
   }
 
-  public String getFolder() {
-    return folder;
+  public String folder() {
+    return settings.getString(FOLDER_PROP_KEY);
   }
 
-  public String getCacheFolder() {
+  public String cacheFolder() {
     return cacheFolder;
   }
 
-  public String getProjectBaseFolder() {
-    return projectBaseFolder;
+  public String agentHost() {
+    return settings.getString(AGENT_HOST_PROP_KEY);
   }
 
-  public String getAgentHost() {
-    return agentHost;
+  public int agentPort() {
+    return settings.getInt(AGENT_PORT_PROP_KEY);
   }
 
-  public int getAgentPort() {
-    return agentPort;
+  public Settings settings() {
+    return settings;
   }
 
 

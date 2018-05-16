@@ -30,38 +30,39 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.sonar.plugins.scm.starteam.StarteamConfiguration.BLAME_CACHE_FOLDER_PROP_KEY;
+import static org.sonar.plugins.scm.starteam.StarteamConfiguration.DEFAULT_BLAME_FOLDER;
+
 public class StarteamFunctions {
   private static final Logger LOG = Loggers.get(StarteamFunctions.class);
-
-  private static final String KEY_BLAME_CACHE_FOLDER = "scm.blame.cache.folder";
 
   private static java.io.File blameCacheBaseFolder;
 
   public static Folder findFolderInView(final View view,
-                                        final String foldername) throws StarteamSCMException {
+                                        final String folderName) throws StarteamSCMException {
     // Check the root folder of the view
-    if (view.getName().equalsIgnoreCase(foldername)) {
+    if (view.getName().equalsIgnoreCase(folderName)) {
       return view.getRootFolder();
     }
 
     // Create a File object with the folder name for system-
     // independent matching
-    java.io.File thefolder = new java.io.File(foldername.toLowerCase());
+    java.io.File ioFolder = new java.io.File(folderName.toLowerCase());
 
     // Search for the folder in subfolders
-    Folder result = findFolderInView(view.getRootFolder(), thefolder);
+    Folder result = findFolderInView(view.getRootFolder(), ioFolder);
     if (result == null) {
-      throw new StarteamSCMException("Couldn't find folder " + foldername
+      throw new StarteamSCMException("Couldn't find folder " + folderName
           + " in view " + view.getName());
     }
     return result;
   }
 
-  private static Folder findFolderInView(Folder folder, java.io.File thefolder) {
+  private static Folder findFolderInView(Folder folder, java.io.File ioFolder) {
     Collection<Folder> checkLater = new ArrayList<>();
     for (Folder f : folder.getSubFolders()) {
       if (f.getFolderHierarchy().equalsIgnoreCase(
-          thefolder.getPath() + java.io.File.separator)) {
+          ioFolder.getPath() + java.io.File.separator)) {
         return f;
       } else {
         // add to list of folders whose children will be checked
@@ -70,7 +71,7 @@ public class StarteamFunctions {
     }
     // recurse unto children
     for (Folder f : checkLater) {
-      Folder result = findFolderInView(f, thefolder);
+      Folder result = findFolderInView(f, ioFolder);
       if (result != null) {
         return result;
       }
@@ -149,9 +150,11 @@ public class StarteamFunctions {
     if (!blameCacheBaseFolder.exists()) {
       boolean result = blameCacheBaseFolder.mkdirs();
       if (!result) {
-        LOG.info("invalid cache folder, use default");
+        LOG.warn("invalid blame cache folder, use default");
         blameCacheBaseFolder = null;
       }
+    } else {
+      LOG.info("Setting blame cache folder to: " + blameCacheBaseFolder.getAbsolutePath());
     }
   }
 
@@ -159,18 +162,18 @@ public class StarteamFunctions {
 
     if (blameCacheBaseFolder == null) {
       LOG.info("blameCacheBaseFolder not set,try to figure out the blame cache folder.");
-      String tmp = System.getProperty(KEY_BLAME_CACHE_FOLDER);
+      String tmp = System.getProperty(BLAME_CACHE_FOLDER_PROP_KEY);
       boolean usingUserHome = false;
       if (tmp == null || tmp.length() == 0) {
         usingUserHome = true;
-        tmp = System.getProperty("user.home") + "/.scm_blame";
+        tmp = System.getProperty("user.home") + "/" + DEFAULT_BLAME_FOLDER;
       }
 
       blameCacheBaseFolder = new java.io.File(tmp);
       blameCacheBaseFolder.mkdirs();
       if (!blameCacheBaseFolder.exists()) {
         if (!usingUserHome) {
-          tmp = System.getProperty("user.home") + "/.scm_blame";
+          tmp = System.getProperty("user.home") + "/" + DEFAULT_BLAME_FOLDER;
           blameCacheBaseFolder = new java.io.File(tmp);
           blameCacheBaseFolder.mkdirs();
         }
