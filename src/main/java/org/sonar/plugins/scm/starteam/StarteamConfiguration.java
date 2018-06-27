@@ -180,7 +180,7 @@ public class StarteamConfiguration {
   }
 
   public String cacheFolder() {
-    return settings.getString(BLAME_CACHE_FOLDER_PROP_KEY);
+    return StarteamProperties.INSTANCE.getProperty(BLAME_CACHE_FOLDER_PROP_KEY, settings.getString(BLAME_CACHE_FOLDER_PROP_KEY));
   }
 
   public String agentHost() {

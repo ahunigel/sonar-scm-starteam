@@ -44,7 +44,7 @@ public class StarteamScmProvider extends ScmProvider {
 
   @Override
   public boolean supports(File baseDir) {
-    return command.isSupported();
+    return command.isSupported() || StarteamProperties.INSTANCE.load(new File(baseDir, ".starteam"));
   }
 
 

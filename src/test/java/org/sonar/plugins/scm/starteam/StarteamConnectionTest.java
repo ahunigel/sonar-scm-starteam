@@ -49,7 +49,7 @@ public class StarteamConnectionTest {
 
     StarteamConnection conn = new StarteamConnection("starteamserver.ers.na.emersonclimate.org",
         49201, "CNXA1ER-STARTEA", 5201, "sonar_hudson_tool", "13m3rson",
-        "JARU", ".G2 1.1 new feature", "d:/blame");
+        "JARU", ".G2 from trunk 17.4.0", "d:/blame");
     try {
       conn.initialize();
       File baseFolder = new File("Software");
