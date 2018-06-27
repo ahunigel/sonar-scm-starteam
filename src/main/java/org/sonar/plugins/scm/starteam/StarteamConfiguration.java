@@ -27,8 +27,6 @@ import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +34,6 @@ import java.util.List;
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @BatchSide
 public class StarteamConfiguration {
-  private static final Logger LOG = Loggers.get(StarteamConfiguration.class);
   public static final String STARTEAM_URL_FORMAT =
       "[username[:password]@]host:port/projectName/viewName";
 
@@ -47,7 +44,7 @@ public class StarteamConfiguration {
   public static final String VIEW_PROP_KEY = "sonar.starteam.view";
   public static final String FOLDER_PROP_KEY = "sonar.starteam.folder";
   public static final String USER_PROP_KEY = "sonar.starteam.user";
-  public static final String PASSWORD_PROP_KEY = "sonar.starteam.password";
+  public static final String PASS_PROP_KEY = "sonar.starteam.password";
   public static final String AGENT_HOST_PROP_KEY = "sonar.starteam.agent.host";
   public static final String AGENT_PORT_PROP_KEY = "sonar.starteam.agent.port";
   public static final String BLAME_CACHE_FOLDER_PROP_KEY = "sonar.blame.cache.folder";
@@ -55,13 +52,8 @@ public class StarteamConfiguration {
 
   private final Settings settings;
 
-  private boolean init = false;
-
-  private String cacheFolder;
-
   public StarteamConfiguration(Settings settings) {
     this.settings = settings;
-    init();
   }
 
   public static List<PropertyDefinition> getProperties() {
@@ -121,7 +113,7 @@ public class StarteamConfiguration {
             .subCategory(CATEGORY_STARTEAM)
             .index(5)
             .build(),
-        PropertyDefinition.builder(PASSWORD_PROP_KEY)
+        PropertyDefinition.builder(PASS_PROP_KEY)
             .name("Password")
             .description("Password to be used for StarTeam server authentication")
             .type(PropertyType.PASSWORD)
@@ -159,23 +151,12 @@ public class StarteamConfiguration {
             .build());
   }
 
-  private synchronized void init() {
-    if (!init) {
-      cacheFolder = settings.getString(BLAME_CACHE_FOLDER_PROP_KEY);
-      if (cacheFolder != null) {
-        LOG.info("Configured blame cache folder is: " + cacheFolder);
-        StarteamFunctions.setBlameCacheBaseFolder(cacheFolder);
-      }
-      init = true;
-    }
-  }
-
   public String user() {
     return settings.getString(USER_PROP_KEY);
   }
 
   public String password() {
-    return settings.getString(PASSWORD_PROP_KEY);
+    return settings.getString(PASS_PROP_KEY);
   }
 
   public String host() {
@@ -199,7 +180,7 @@ public class StarteamConfiguration {
   }
 
   public String cacheFolder() {
-    return cacheFolder;
+    return settings.getString(BLAME_CACHE_FOLDER_PROP_KEY);
   }
 
   public String agentHost() {

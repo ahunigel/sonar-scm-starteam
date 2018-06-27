@@ -150,7 +150,7 @@ public class StarteamFunctions {
     if (!blameCacheBaseFolder.exists()) {
       boolean result = blameCacheBaseFolder.mkdirs();
       if (!result) {
-        LOG.warn("invalid blame cache folder, use default");
+        LOG.warn("invalid configuration for blame cache folder: {}, use default");
         blameCacheBaseFolder = null;
       }
     } else {
@@ -161,7 +161,7 @@ public class StarteamFunctions {
   public static java.io.File getBlameCacheBaseFolder() {
 
     if (blameCacheBaseFolder == null) {
-      LOG.info("blameCacheBaseFolder not set,try to figure out the blame cache folder.");
+      LOG.info("blameCacheBaseFolder not set, try to figure out the blame cache folder.");
       String tmp = System.getProperty(BLAME_CACHE_FOLDER_PROP_KEY);
       boolean usingUserHome = false;
       if (tmp == null || tmp.length() == 0) {
@@ -179,6 +179,7 @@ public class StarteamFunctions {
         }
       }
     }
+    LOG.info("blameCacheBaseFolder: {}", blameCacheBaseFolder);
     return blameCacheBaseFolder;
   }
 }

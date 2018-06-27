@@ -175,6 +175,10 @@ public class StarteamConnection {
   }
 
   public void startBlame() {
+    if (cacheFolder != null) {
+      LOG.info("Configured blame cache folder is: " + cacheFolder);
+      StarteamFunctions.setBlameCacheBaseFolder(cacheFolder);
+    }
     HistoryFileDownloader downLoader = new HistoryFileDownloader();
     downLoader.start();
     while (!downLoader.isFinished()) {
@@ -525,7 +529,7 @@ public class StarteamConnection {
     if (null == userName)
       throw new NullPointerException("StarTeam user cannot be null, " + USER_PROP_KEY + " should be configured!!");
     if (null == password)
-      throw new NullPointerException("StarTeam passwd cannot be null, " + PASSWORD_PROP_KEY + " should be configured!!");
+      throw new NullPointerException("StarTeam passwd cannot be null, " + PASS_PROP_KEY + " should be configured!!");
     if (null == projectName)
       throw new NullPointerException("StarTeam projectName cannot be null, " + PROJECT_PROP_KEY + " should be configured!!");
     if (null == viewName)
